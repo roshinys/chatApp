@@ -32,7 +32,8 @@ async function addNewUser(e) {
   // console.log(response);
   Message(response.data.msg);
   setTimeout(() => {
-    console.log("lets redirect");
+    window.location.href =
+      "file:///C:/Users/roshi/Desktop/backendSharpener/chatApp/frontend/html/login.html";
   }, 1000);
 }
 
