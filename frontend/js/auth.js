@@ -6,8 +6,32 @@ window.addEventListener("DOMContentLoaded", () => {
   showPass.addEventListener("click", showPassword);
   if (btn.name === "register") {
     btn.addEventListener("click", addNewUser);
+  } else {
+    btn.addEventListener("click", getUser);
   }
 });
+
+async function getUser(e) {
+  e.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  if (!email || !password) {
+    Message("Inputs Required");
+    return;
+  }
+  const response = await axios.post(`${apiCall}/user/get-user`, {
+    email: email,
+    password: password,
+  });
+  if (!response.data.success) {
+    Message(response.data.msg);
+    return;
+  }
+  console.log(response);
+  const token = response.data.token;
+  localStorage.setItem("token", token);
+  Message(response.data.msg);
+}
 
 async function addNewUser(e) {
   e.preventDefault();
