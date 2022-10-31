@@ -103,6 +103,25 @@
   background-color: black;
 }
 
+.message {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: 2%;
+  bottom: 2%;
+  font-size: 0.5rem;
+}
+.message-body {
+  background-color: white;
+  margin: 5px 0;
+  padding: 7px;
+  border: 1px solid white;
+  border-radius: 10px;
+}
+.message-text {
+  color: var(--luffy);
+}
+
 /* Mobile users */
 @media (max-width: 450px) {
   .container {
@@ -125,5 +144,15 @@
   }
   .form-input input {
     margin: 5px 0;
+  }
+
+  .message.active {
+    font-size: 0.2rem;
+  }
+  .message-body {
+    margin: 3px 0;
+    padding: 4px;
+    border: 1px solid white;
+    border-radius: 5px;
   }
 }

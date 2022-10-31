@@ -10,6 +10,11 @@ exports.newUser = async (req, res) => {
       res.json({ success: false, msg: "input required" });
       return;
     }
+    const userExist = await User.findAll({ where: { email: email } });
+    if (userExist[0]) {
+      res.json({ success: false, msg: "User Already Exist" });
+      return;
+    }
     const hashPass = await bcrypt.hash(password, saltRounds);
     const user = await User.create({
       username,
