@@ -11,6 +11,7 @@
 }
 
 .container {
+  background-color: var(--luffy);
   font-family: "Poppins", sans-serif;
   width: 100vw;
   height: 100vh;
@@ -20,7 +21,6 @@
   justify-content: center;
 }
 .container-body {
-  background-color: var(--luffy);
   padding: 35px 40px;
   border-radius: 10px;
 }
@@ -52,6 +52,11 @@
   line-height: 30px;
   margin: 5px 10px;
 }
+.form-pass {
+  display: grid;
+  grid-template-columns: 15% 75% 10%;
+}
+
 .form-input input {
   background: none;
   border: none;
@@ -93,9 +98,9 @@
   border-bottom: 3px solid white;
 }
 .btn:hover {
-  color: black;
+  color: #08f476;
   cursor: pointer;
-  background-color: white;
+  background-color: black;
 }
 
 /* Mobile users */
@@ -108,5 +113,17 @@
   .container-body {
     width: 100%;
     height: 100%;
+  }
+  .form-title {
+    font-size: 1rem;
+  }
+  .form-input input,
+  .btn,
+  .acc,
+  .form-input i {
+    font-size: 0.7rem;
+  }
+  .form-input input {
+    margin: 5px 0;
   }
 }

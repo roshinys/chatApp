@@ -13,6 +13,15 @@
         <form class="form">
           <h1 class="form-title">Sign In</h1>
           <div class="form-input">
+            <i class="fa-solid fa-user"></i>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-input">
             <i class="fa-solid fa-envelope"></i>
             <input
               type="text"
@@ -30,7 +39,7 @@
               autocomplete="off"
             />
           </div>
-          <div class="form-input">
+          <div class="form-input form-pass">
             <i class="fa-solid fa-lock"></i>
             <input
               type="password"
@@ -38,6 +47,7 @@
               placeholder="Password"
               autocomplete="off"
             />
+            <i class="fa-solid fa-eye-slash"></i>
           </div>
           <button class="btn">Register</button>
           <p class="acc">
@@ -52,4 +62,5 @@
     crossorigin="anonymous"
   ></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+  <script src="../js/auth.js" async></script>
 </html>
