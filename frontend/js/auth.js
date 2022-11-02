@@ -4,7 +4,8 @@ const apiCall = "http://localhost:3000";
 
 window.addEventListener("DOMContentLoaded", () => {
   showPass.addEventListener("click", showPassword);
-  if (btn.name === "register") {
+
+  if (btn.id === "register") {
     btn.addEventListener("click", addNewUser);
   } else {
     btn.addEventListener("click", getUser);
@@ -31,6 +32,10 @@ async function getUser(e) {
   const token = response.data.token;
   localStorage.setItem("token", token);
   Message(response.data.msg);
+  setTimeout(() => {
+    window.location.href =
+      "file:///C:/Users/roshi/Desktop/backendSharpener/chatApp/frontend/html/chat.html";
+  }, 1000);
 }
 
 async function addNewUser(e) {

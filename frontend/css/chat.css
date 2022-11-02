@@ -16,16 +16,18 @@
 body {
   background: var(--wblack);
   min-height: 100vh;
+  color: white;
 }
 .container {
   display: flex;
+  height: max-content;
 }
 .container-left {
   border-right: 1px solid var(--luffy);
   min-height: 100vh;
-  position: fixed;
+  /* position: fixed; */
   flex: 0.35 !important;
-  width: 35%;
+  /* width: 35%; */
 }
 .container-right {
   flex: 0.65;
@@ -80,6 +82,9 @@ body {
   margin: 0.5px 0;
   border-bottom: 1px solid var(--wblack);
 }
+.contact:hover {
+  cursor: pointer;
+}
 .contact-info {
   display: flex;
   padding: 5px;
@@ -99,4 +104,76 @@ body {
 .contact .date {
   font-size: 0.7rem;
   color: var(--luffy);
+}
+.container-right {
+  color: white;
+}
+.container-right-header {
+  display: flex;
+}
+.container-right-header p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 3px;
+}
+.texts {
+  height: max-content;
+  margin: 3px 0;
+  /* background-color: red; */
+}
+.text {
+  display: flex;
+  margin: 3px;
+}
+.text p {
+  background-color: white;
+  color: var(--lblack);
+  width: max-content;
+  padding: 3px;
+  margin: 0 30px;
+  font-size: 0.8rem;
+  border-radius: 2px;
+}
+.text.sent {
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+.text.sent p {
+  background-color: var(--luffy);
+  color: white;
+  width: max-content;
+  padding: 3px;
+  margin: 0 30px;
+  font-size: 0.8rem;
+  border-radius: 2px;
+}
+.footer {
+  position: fixed;
+  bottom: 0%;
+  width: 100%;
+  background-color: var(--lblack);
+}
+.footer form {
+  display: flex;
+  color: var(--luffy);
+  width: 100%;
+  height: 35px;
+  margin: 3px;
+}
+.footer input {
+  width: 60%;
+  background-color: var(--lblack);
+  color: white;
+  padding: 10px;
+}
+
+.footer button {
+  background-color: var(--luffy);
+  color: white;
+  width: 60px;
+  padding: 4px;
+  margin: 0 3px;
+  border: none;
+  border-radius: 3px;
 }

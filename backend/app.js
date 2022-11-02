@@ -16,15 +16,21 @@ const sequelize = require("./util/database");
 
 //routes
 const authRoutes = require("./routes/authRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 //model
 const User = require("./model/User");
+const Message = require("./model/Messages");
+//define relations here
+User.hasMany(Message);
+Message.belongsTo(User);
 
 app.use("/user", authRoutes);
+app.use("/chat", chatRoutes);
 
 sequelize
   .sync()
-  //   .sync({ force: true })
+  // .sync({ force: true })
   .then(() => {
     app.listen(process.env.PORT, () => {
       console.log("server started at port 3k");
