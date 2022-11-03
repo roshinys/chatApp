@@ -1,6 +1,7 @@
 const token = localStorage.getItem("token");
 const sendMessage = document.getElementById("sendMessage");
 const contactHtml = document.querySelectorAll(".contact");
+const addnewgroup = document.getElementById("addnewgroup");
 var myInterval;
 var oldmsgs;
 
@@ -10,8 +11,67 @@ window.addEventListener("DOMContentLoaded", () => {
       "C:Users\roshiDesktop\backendSharpenerchatApp\frontendhtmllogin.html";
   }
   getAllChats();
+  getAllGroups();
   sendMessage.addEventListener("click", sendNewText);
+  addnewgroup.addEventListener("click", () => {
+    const groupformhtml = document.getElementsByClassName("addGroupForm")[0];
+    if (groupformhtml.classList.contains("active")) {
+      groupformhtml.classList.remove("active");
+    } else {
+      groupformhtml.classList.add("active");
+    }
+  });
+  document.getElementById("newgroup").addEventListener("click", AddNewGroup);
 });
+
+async function getAllGroups() {
+  const response = await axios.get(
+    "http://localhost:3000/group-chat/all-groups",
+    {
+      headers: { Authorization: token },
+    }
+  );
+  // console.log(response);
+  const groups = response.data.groups;
+  groups.forEach((group) => {
+    const chat = {
+      id: group.id,
+      username: group.name,
+    };
+    contactListNew(chat, true);
+  });
+  const contactListHtml = document.getElementsByClassName("contact-list")[0];
+  for (let i = 0; i < contactListHtml.children.length; i++) {
+    const gp = contactListHtml.children[i];
+    if (gp.classList.contains("group")) {
+      gp.addEventListener("click", specificGroup);
+    }
+  }
+}
+
+async function AddNewGroup(e) {
+  e.preventDefault();
+  const groupName = document.getElementById("groupName").value;
+  if (!groupName) {
+    console.log("group name required");
+    return;
+  }
+  const response = await axios.post(
+    "http://localhost:3000/group-chat/new-group",
+    {
+      groupName: groupName,
+    },
+    {
+      headers: { Authorization: token },
+    }
+  );
+  // console.log(response);
+  const chat = {
+    id: response.data.groupId,
+    username: response.data.groupName,
+  };
+  contactListNew(chat, true);
+}
 
 async function sendNewText() {
   const newText = document.getElementById("newtext").value;
@@ -22,22 +82,35 @@ async function sendNewText() {
     console.log("select chat");
     return;
   }
-  const OtherUserId = profileUsername.id;
-  const response = await axios.post(
-    "http://localhost:3000/chat/new-chat",
-    {
+  let apiCall;
+  let obj;
+  if (profileUsername.classList.contains("group")) {
+    const groudId = profileUsername.id;
+    apiCall = "http://localhost:3000/group-chat/new-chat";
+    obj = {
+      id: groudId,
+      content: newText,
+    };
+    console.log("am i here");
+  } else {
+    const OtherUserId = profileUsername.id;
+    apiCall = "http://localhost:3000/chat/new-chat";
+    obj = {
       id: OtherUserId,
       content: newText,
-    },
-    {
-      headers: { Authorization: token },
-    }
-  );
-  // console.log(response);
+    };
+  }
+  const response = await axios.post(`${apiCall}`, obj, {
+    headers: { Authorization: token },
+  });
+  console.log(response);
   addToChatList(response.data.result.content || newText, true);
 }
 
-function addToChatList(newText, isSent) {
+function addToChatList(newText, isSent, username) {
+  if (!username) {
+    var username = "";
+  }
   const texts = document.getElementsByClassName("texts")[0];
   // console.log(texts);
   const text = document.createElement("div");
@@ -45,7 +118,7 @@ function addToChatList(newText, isSent) {
   if (isSent) {
     text.className = "text sent";
   }
-  text.innerHTML = `<p>${newText}</p>`;
+  text.innerHTML = `<p><span class="text-username">${username}  </span>${newText}</p>`;
   texts.appendChild(text);
 }
 
@@ -55,17 +128,30 @@ async function getAllChats() {
   });
   //   console.log(response);
   const chatList = response.data.allUser;
-  addToContactList(chatList);
+  addToContactList(chatList, false);
 }
 
-function addToContactList(chatList) {
+function addToContactList(chatList, isGroup) {
   //   console.log(chatList);
   const contactListHtml = document.getElementsByClassName("contact-list")[0];
+  contactListHtml.innerHTML = "";
   chatList.forEach((chat) => {
-    const contact = document.createElement("div");
-    contact.id = chat.id;
-    contact.className = "contact";
-    contact.innerHTML = `<div class="contact-info">
+    contactListNew(chat, isGroup);
+  });
+  for (let i = 0; i < contactListHtml.children.length; i++) {
+    contactListHtml.children[i].addEventListener("click", specificUser);
+  }
+}
+
+function contactListNew(chat, isGroup) {
+  const contactListHtml = document.getElementsByClassName("contact-list")[0];
+  const contact = document.createElement("div");
+  contact.id = chat.id;
+  // console.log(isGroup, contact.classList);
+  contact.className = "contact";
+  const newclass = isGroup ? "group" : "notGroup";
+  contact.classList.add(newclass);
+  contact.innerHTML = `<div class="contact-info">
       <img class="profileImg" src="../images/images.jpg" />
       <div class="text-info">
         <h3>${chat.username}</h3>
@@ -73,52 +159,74 @@ function addToContactList(chatList) {
       </div>
     </div>
     <p class="date">12:04am</p>`;
-    contactListHtml.append(contact);
-  });
-  for (let i = 0; i < contactListHtml.children.length; i++) {
-    contactListHtml.children[i].addEventListener("click", specificUser);
-  }
+  contactListHtml.append(contact);
 }
+
+async function specificGroup(e) {
+  let groupId = e.target.id;
+  const texts = document.getElementsByClassName("texts")[0];
+  texts.innerHTML = "";
+  const response = await axios.get(
+    `http://localhost:3000/group-chat/get-chat/${groupId}`,
+    {
+      headers: { Authorization: token },
+    }
+  );
+  console.log("group chat of this ", response);
+  groupId = response.data.group.id;
+  let loggedUserId = response.data.loggedUserId;
+  let groupName = response.data.group.name;
+  const messages = response.data.groupMessages;
+  const profileUsername =
+    document.getElementsByClassName("profile-username")[0];
+  profileUsername.id = groupId;
+  profileUsername.innerText = groupName;
+  profileUsername.classList.add("group");
+  messages.forEach((message) => {
+    let isSent = true;
+    if (message.userId != loggedUserId) {
+      isSent = false;
+    }
+    const content = message.content;
+    addToChatList(content, isSent, message.user.username);
+  });
+}
+
 async function specificUser(e) {
   if (myInterval) {
     clearInterval(myInterval);
   }
   let parent = e.target;
-  const rid = parent.id;
+  let rid;
+  rid = parent.id;
   const texts = document.getElementsByClassName("texts")[0];
   texts.innerHTML = "";
   let lastmsg = 0;
-  // console.log(oldmsgs);
-  // if (localStorage.getItem(rid)) {
-  //   oldmsgs = JSON.parse(localStorage.getItem(rid));
-  //   lastmsg = oldmsgs.length;
-  //   addOldMsgs(oldmsgs);
-  // }
-  myInterval = setInterval(async () => {
-    if (localStorage.getItem(rid)) {
-      oldmsgs = JSON.parse(localStorage.getItem(rid));
-      lastmsg = oldmsgs.length;
-      addOldMsgs(oldmsgs);
+  // myInterval = setInterval(async () => {
+  if (localStorage.getItem(rid)) {
+    oldmsgs = JSON.parse(localStorage.getItem(rid));
+    lastmsg = oldmsgs.length;
+    addOldMsgs(oldmsgs);
+  }
+  let response;
+  response = await axios.get(
+    `http://localhost:3000/chat/user/${rid}?lastmsg=${lastmsg}`,
+    {
+      headers: { Authorization: token },
     }
-    let response;
-    response = await axios.get(
-      `http://localhost:3000/chat/user/${rid}?lastmsg=${lastmsg}`,
-      {
-        headers: { Authorization: token },
-      }
-    );
-    console.log(response);
-    const userId = response.data.userId;
-    const messages = response.data.allMessages;
-    const OtherUser = response.data.otheruser;
-    const profileUsername =
-      document.getElementsByClassName("profile-username")[0];
-    profileUsername.id = OtherUser.id;
-    profileUsername.innerText = OtherUser.username;
-    if (messages.length > 0) {
-      display(messages, userId, rid);
-    }
-  }, 1000);
+  );
+  // console.log(response);
+  const userId = response.data.userId;
+  const messages = response.data.allMessages;
+  const OtherUser = response.data.otheruser;
+  const profileUsername =
+    document.getElementsByClassName("profile-username")[0];
+  profileUsername.id = OtherUser.id;
+  profileUsername.innerText = OtherUser.username;
+  if (messages.length > 0) {
+    display(messages, userId, rid);
+  }
+  // }, 1000);
 }
 
 function addOldMsgs(messages) {
