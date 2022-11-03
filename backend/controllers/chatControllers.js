@@ -24,27 +24,28 @@ exports.newChat = async (req, res) => {
 exports.sendChatUser = async (req, res) => {
   try {
     // console.log(req.params);
-    let lastmsg = req.query.lastmsg;
-    if (lastmsg == -1 || lastmsg == 0) {
-      lastmsg = 1;
-    }
-    const userId = req.params.userId;
-    const user = req.user;
-    const Otheruser = await User.findByPk(userId);
+    let lastmsg = req.query.lastmsg || 0;
+    lastmsg = parseInt(lastmsg);
+    console.log("last msg====>", lastmsg);
+    const OtheruserId = req.params.userId;
+    const userId = req.user.id;
+    const Otheruser = await User.findByPk(OtheruserId);
     const allMessages = await Message.findAll({
       where: {
         [Op.or]: [
-          { [Op.and]: [{ senderId: user.id }, { receiverId: Otheruser.id }] },
+          { [Op.and]: [{ userId: userId }, { receiverId: Otheruser.id }] },
           {
-            [Op.and]: [{ senderId: Otheruser.id }, { receiverId: user.id }],
+            [Op.and]: [{ userId: Otheruser.id }, { receiverId: userId }],
           },
         ],
       },
-      offset: lastmsg - 1,
+      order: [["id"]],
+      offset: lastmsg,
     });
+    const otheruser = { id: Otheruser.id, username: Otheruser.username };
     res.json({
-      user,
-      Otheruser,
+      userId,
+      otheruser,
       allMessages,
       success: true,
       msg: "other user exist",

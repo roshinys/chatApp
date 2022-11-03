@@ -87,53 +87,60 @@ async function specificUser(e) {
   const rid = parent.id;
   const texts = document.getElementsByClassName("texts")[0];
   texts.innerHTML = "";
-  let lastmsg = -1;
-  if (localStorage.getItem(rid)) {
-    oldmsgs = JSON.parse(localStorage.getItem(rid));
-    lastmsg = oldmsgs.length;
-    addOldMsgs(oldmsgs);
-  }
-  // myInterval = setInterval(async () => {
-  let response;
-  response = await axios.get(
-    `http://localhost:3000/chat/user/${rid}?lastmsg=${lastmsg}`,
-    {
-      headers: { Authorization: token },
+  let lastmsg = 0;
+  // console.log(oldmsgs);
+  // if (localStorage.getItem(rid)) {
+  //   oldmsgs = JSON.parse(localStorage.getItem(rid));
+  //   lastmsg = oldmsgs.length;
+  //   addOldMsgs(oldmsgs);
+  // }
+  myInterval = setInterval(async () => {
+    if (localStorage.getItem(rid)) {
+      oldmsgs = JSON.parse(localStorage.getItem(rid));
+      lastmsg = oldmsgs.length;
+      addOldMsgs(oldmsgs);
     }
-  );
-  console.log(response);
-  const user = response.data.user;
-  const messages = response.data.allMessages;
-  const OtherUser = response.data.Otheruser;
-  const profileUsername =
-    document.getElementsByClassName("profile-username")[0];
-  profileUsername.id = OtherUser.id;
-  profileUsername.innerText = OtherUser.username;
-  if (messages.length > 0) {
-    display(messages, user, rid);
-  }
-
-  // }, 1000);
+    let response;
+    response = await axios.get(
+      `http://localhost:3000/chat/user/${rid}?lastmsg=${lastmsg}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
+    console.log(response);
+    const userId = response.data.userId;
+    const messages = response.data.allMessages;
+    const OtherUser = response.data.otheruser;
+    const profileUsername =
+      document.getElementsByClassName("profile-username")[0];
+    profileUsername.id = OtherUser.id;
+    profileUsername.innerText = OtherUser.username;
+    if (messages.length > 0) {
+      display(messages, userId, rid);
+    }
+  }, 1000);
 }
 
 function addOldMsgs(messages) {
+  const texts = document.getElementsByClassName("texts")[0];
+  texts.innerHTML = "";
   messages.forEach((message) => {
-    const content = message[1];
-    addToChatList(content, message[2]);
+    const content = message[0];
+    addToChatList(content, message[1]);
   });
 }
 
-function display(messages, user, rid) {
+function display(messages, userId, rid) {
   const newmsg = [];
   // const texts = document.getElementsByClassName("texts")[0];
   // texts.innerHTML = "";
   messages.forEach((message) => {
     let isSent = true;
-    if (message.senderId != user.id) {
+    if (message.userId != userId) {
       isSent = false;
     }
     const content = message.content;
-    newmsg.push([message.id, message.content, isSent]);
+    newmsg.push([message.content, isSent]);
     addToChatList(content, isSent);
   });
   // // console.log(newmsg);
