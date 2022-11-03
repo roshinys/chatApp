@@ -18,6 +18,7 @@ exports.newChat = async (req, res) => {
 
 exports.getGroup = async (req, res) => {
   try {
+    const lastmsg = parseInt(req.query.lastmsg) || 0;
     const loggedUserId = req.user.id;
     const groudId = req.params.groudId;
     const groups = await Group.findAll({
@@ -26,7 +27,10 @@ exports.getGroup = async (req, res) => {
       },
     });
     const group = groups[0];
-    const groupMessages = await group.getMessages({ include: User });
+    const groupMessages = await group.getMessages({
+      include: User,
+      offset: lastmsg,
+    });
     res.json({ groudId, group, groupMessages, loggedUserId });
   } catch (err) {
     console.log(err);
