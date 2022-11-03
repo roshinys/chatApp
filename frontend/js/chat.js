@@ -1,7 +1,7 @@
 const token = localStorage.getItem("token");
 const sendMessage = document.getElementById("sendMessage");
 const contactHtml = document.querySelectorAll(".contact");
-
+var myInterval;
 window.addEventListener("DOMContentLoaded", () => {
   if (!token) {
     window.location.href =
@@ -78,21 +78,40 @@ function addToContactList(chatList) {
   }
 }
 async function specificUser(e) {
+  if (myInterval) {
+    clearInterval(myInterval);
+  }
   let parent = e.target;
   const rid = parent.id;
-  const response = await axios.get(`http://localhost:3000/chat/user/${rid}`, {
-    headers: { Authorization: token },
-  });
-  console.log(response);
-  const user = response.data.user;
-  const messages = response.data.allMessages;
-  const OtherUser = response.data.Otheruser;
-  const profileUsername =
-    document.getElementsByClassName("profile-username")[0];
-  profileUsername.id = OtherUser.id;
-  profileUsername.innerText = OtherUser.username;
-  display(messages, user);
+  myInterval = setInterval(async () => {
+    let response;
+    response = await axios.get(`http://localhost:3000/chat/user/${rid}`, {
+      headers: { Authorization: token },
+    });
+    const user = response.data.user;
+    const messages = response.data.allMessages;
+    const OtherUser = response.data.Otheruser;
+    const profileUsername =
+      document.getElementsByClassName("profile-username")[0];
+    profileUsername.id = OtherUser.id;
+    profileUsername.innerText = OtherUser.username;
+    display(messages, user);
+  }, 1000);
 }
+// async function getUserChat(rid) {
+//   let response;
+//   response = await axios.get(`http://localhost:3000/chat/user/${rid}`, {
+//     headers: { Authorization: token },
+//   });
+//   const user = response.data.user;
+//   const messages = response.data.allMessages;
+//   const OtherUser = response.data.Otheruser;
+//   const profileUsername =
+//     document.getElementsByClassName("profile-username")[0];
+//   profileUsername.id = OtherUser.id;
+//   profileUsername.innerText = OtherUser.username;
+//   display(messages, user);
+// }
 function display(messages, user) {
   const texts = document.getElementsByClassName("texts")[0];
   texts.innerHTML = "";
