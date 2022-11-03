@@ -23,6 +23,11 @@ exports.newChat = async (req, res) => {
 
 exports.sendChatUser = async (req, res) => {
   try {
+    // console.log(req.params);
+    let lastmsg = req.query.lastmsg;
+    if (lastmsg == -1 || lastmsg == 0) {
+      lastmsg = 1;
+    }
     const userId = req.params.userId;
     const user = req.user;
     const Otheruser = await User.findByPk(userId);
@@ -35,6 +40,7 @@ exports.sendChatUser = async (req, res) => {
           },
         ],
       },
+      offset: lastmsg - 1,
     });
     res.json({
       user,

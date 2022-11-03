@@ -120,8 +120,25 @@ body {
 .texts {
   height: max-content;
   margin: 3px 0;
+  overflow-y: scroll;
+  height: 80vh;
   /* background-color: red; */
 }
+.texts::-webkit-scrollbar {
+  width: 4px;
+  border: 1px solid var(--lblack);
+}
+
+.texts::-webkit-scrollbar-track {
+  border-radius: 0;
+  background: var(--wblack);
+}
+
+.texts::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: var(--lblack);
+}
+
 .text {
   display: flex;
   margin: 3px;

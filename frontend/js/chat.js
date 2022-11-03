@@ -2,6 +2,8 @@ const token = localStorage.getItem("token");
 const sendMessage = document.getElementById("sendMessage");
 const contactHtml = document.querySelectorAll(".contact");
 var myInterval;
+var oldmsgs;
+
 window.addEventListener("DOMContentLoaded", () => {
   if (!token) {
     window.location.href =
@@ -83,44 +85,65 @@ async function specificUser(e) {
   }
   let parent = e.target;
   const rid = parent.id;
-  myInterval = setInterval(async () => {
-    let response;
-    response = await axios.get(`http://localhost:3000/chat/user/${rid}`, {
-      headers: { Authorization: token },
-    });
-    const user = response.data.user;
-    const messages = response.data.allMessages;
-    const OtherUser = response.data.Otheruser;
-    const profileUsername =
-      document.getElementsByClassName("profile-username")[0];
-    profileUsername.id = OtherUser.id;
-    profileUsername.innerText = OtherUser.username;
-    display(messages, user);
-  }, 1000);
-}
-// async function getUserChat(rid) {
-//   let response;
-//   response = await axios.get(`http://localhost:3000/chat/user/${rid}`, {
-//     headers: { Authorization: token },
-//   });
-//   const user = response.data.user;
-//   const messages = response.data.allMessages;
-//   const OtherUser = response.data.Otheruser;
-//   const profileUsername =
-//     document.getElementsByClassName("profile-username")[0];
-//   profileUsername.id = OtherUser.id;
-//   profileUsername.innerText = OtherUser.username;
-//   display(messages, user);
-// }
-function display(messages, user) {
   const texts = document.getElementsByClassName("texts")[0];
   texts.innerHTML = "";
+  let lastmsg = -1;
+  if (localStorage.getItem(rid)) {
+    oldmsgs = JSON.parse(localStorage.getItem(rid));
+    lastmsg = oldmsgs.length;
+    addOldMsgs(oldmsgs);
+  }
+  // myInterval = setInterval(async () => {
+  let response;
+  response = await axios.get(
+    `http://localhost:3000/chat/user/${rid}?lastmsg=${lastmsg}`,
+    {
+      headers: { Authorization: token },
+    }
+  );
+  console.log(response);
+  const user = response.data.user;
+  const messages = response.data.allMessages;
+  const OtherUser = response.data.Otheruser;
+  const profileUsername =
+    document.getElementsByClassName("profile-username")[0];
+  profileUsername.id = OtherUser.id;
+  profileUsername.innerText = OtherUser.username;
+  if (messages.length > 0) {
+    display(messages, user, rid);
+  }
+
+  // }, 1000);
+}
+
+function addOldMsgs(messages) {
+  messages.forEach((message) => {
+    const content = message[1];
+    addToChatList(content, message[2]);
+  });
+}
+
+function display(messages, user, rid) {
+  const newmsg = [];
+  // const texts = document.getElementsByClassName("texts")[0];
+  // texts.innerHTML = "";
   messages.forEach((message) => {
     let isSent = true;
     if (message.senderId != user.id) {
       isSent = false;
     }
     const content = message.content;
+    newmsg.push([message.id, message.content, isSent]);
     addToChatList(content, isSent);
   });
+  // // console.log(newmsg);
+  // newmsg.forEach((msgs) => {
+  //   console.log(msgs);
+  // });
+  if (!oldmsgs) {
+    oldmsgs = [...newmsg];
+  } else {
+    oldmsgs = [...oldmsgs, ...newmsg];
+  }
+  localStorage.setItem(rid, JSON.stringify(oldmsgs));
 }
