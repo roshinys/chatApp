@@ -5,19 +5,51 @@ const Message = require("../model/Messages");
 
 const { Op } = require("sequelize");
 
-exports.makeUserAdmin = async (req, res) => {
+exports.removeUser = async (req, res) => {
   try {
     const groupId = req.params.groupId;
-    const userId = req.body.userId;
+    const userId = req.query.userId;
+    const loggedUserId = await req.user.id;
+    const isAdmin = await UserGroup.findAll({
+      where: {
+        [Op.and]: [{ userId: loggedUserId, groupId: groupId }],
+      },
+    });
+    let result = isAdmin[0].admin;
+    let message = "removed user";
+    if (userId == loggedUserId) {
+      result = true;
+      message = "you exited from group";
+    }
+    if (!result) {
+      res.json({ success: true, msg: "aint admin user" });
+      return;
+    }
+    const delUser = await UserGroup.destroy({
+      where: {
+        [Op.and]: [{ userId: userId, groupId: groupId }],
+      },
+    });
+    res.json({ success: true, msg: message, delUser });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ success: false, msg: "smtg went wrong" });
+  }
+};
+
+exports.makeUserAdmin = async (req, res) => {
+  try {
+    const groupId = parseInt(req.params.groupId);
+    const userId = parseInt(req.body.userId);
     const adm = await UserGroup.update(
       { admin: true },
       {
         where: {
-          [Op.or]: [{ userId: userId }, { groupId: groupId }],
+          [Op.and]: [{ userId: userId }, { groupId: groupId }],
         },
       }
     );
-    res.json({ success: true, msg: "added new admin", adm });
+    res.json({ success: true, msg: "added new admin", userId, groupId, adm });
   } catch (err) {
     console.log(err);
     res.status(404).json({ success: false, msg: "smtg went wrong" });

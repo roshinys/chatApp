@@ -42,4 +42,10 @@ router.post(
   groupchatController.makeUserAdmin
 );
 
+router.delete(
+  "/remove-user/:groupId",
+  middleware.authenticate,
+  groupchatController.removeUser
+);
+
 module.exports = router;

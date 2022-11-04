@@ -386,7 +386,7 @@ body {
   display: flex;
   height: 20px;
   margin: 7px 0;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .group-member h3 {
   font-size: 0.7rem;
