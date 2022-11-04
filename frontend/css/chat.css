@@ -340,3 +340,73 @@ body {
 .searched-user button:hover {
   cursor: pointer;
 }
+.get-group {
+  display: none;
+}
+.get-group.active {
+  display: flex;
+  position: fixed;
+  top: 2%;
+  right: 8%;
+  padding: 5px;
+}
+.get-group i {
+  color: var(--luffy);
+  padding: 2px 0;
+}
+.get-group i:hover {
+  color: white;
+  border-bottom: 3px solid var(--luffy);
+  cursor: pointer;
+}
+.group-members {
+  display: none;
+}
+.group-members.active {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: 0%;
+  top: 50%;
+  height: 50vh;
+  width: 40vw;
+  /* width: max-content; */
+  background-color: var(--luffy);
+  z-index: 2;
+  padding: 10px;
+}
+.group-members h2 {
+  padding: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 3px solid var(--lblack);
+}
+.group-member {
+  display: flex;
+  height: 20px;
+  margin: 7px 0;
+  justify-content: space-around;
+}
+.group-member h3 {
+  font-size: 0.7rem;
+  margin: 0 2px;
+}
+.group-member button {
+  font-size: 0.7rem;
+  color: black;
+  margin: 0 2px;
+  border-radius: 10px;
+  border: none;
+  padding: 2px;
+}
+.group-member button:hover {
+  cursor: pointer;
+  background-color: black;
+  color: white;
+}
+.group-p,
+p {
+  font-size: 0.7rem;
+  display: flex;
+}

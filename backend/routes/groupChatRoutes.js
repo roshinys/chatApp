@@ -30,4 +30,16 @@ router.post(
   groupchatController.newGroupMember
 );
 
+router.get(
+  "/get-all-users/:groupId",
+  middleware.authenticate,
+  groupchatController.getAllMembers
+);
+
+router.post(
+  "/make-user-admin/:groupId",
+  middleware.authenticate,
+  groupchatController.makeUserAdmin
+);
+
 module.exports = router;

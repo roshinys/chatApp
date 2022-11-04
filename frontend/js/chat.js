@@ -216,12 +216,89 @@ async function specificGroup(e) {
   }
   localStorage.setItem(key, JSON.stringify(oldGrpMsgs));
   const addmemberhtml = document.getElementsByClassName("add-user")[0];
+  const getGroupUsers = document.getElementsByClassName("get-group")[0];
   if (!addmemberhtml.classList.contains("active")) {
     addmemberhtml.classList.add("active");
     addmemberhtml.addEventListener("click", addmemberjs);
   }
-
+  if (!getGroupUsers.classList.contains("active")) {
+    getGroupUsers.classList.add("active");
+    getGroupUsers.addEventListener("click", getGroupMembers);
+  }
   // }, 1000);
+}
+
+async function getGroupMembers(e) {
+  const groupId = document.getElementsByClassName("profile-username")[0].id;
+  const groupmembershtml = document.getElementsByClassName("group-members")[0];
+  if (groupmembershtml.classList.contains("active")) {
+    groupmembershtml.classList.remove("active");
+  } else {
+    groupmembershtml.classList.add("active");
+  }
+  const response = await axios.get(
+    `http://localhost:3000/group-chat/get-all-users/${groupId}`,
+    {
+      headers: { Authorization: token },
+    }
+  );
+  // console.log(response);
+  groupmembershtml.innerHTML = `<h2>All users</h2>`;
+  const allmembers = response.data.allmembers;
+  allmembers.forEach((member) => {
+    const div = document.createElement("div");
+    div.className = "group-member";
+    div.name = member.id;
+    const h3 = document.createElement("h3");
+    h3.innerText = member.username;
+    div.appendChild(h3);
+    const adminbtn = document.createElement("button");
+    const removebtn = document.createElement("button");
+    removebtn.innerText = "remove";
+    // console.log(member);
+    if (member.usergroup.superadmin) {
+      const p = document.createElement("p");
+      p.classList = "group-p";
+      p.innerText = "super admin";
+      div.appendChild(p);
+    } else if (member.usergroup.admin) {
+      const p = document.createElement("p");
+      p.innerText = "admin";
+      div.appendChild(p);
+    } else {
+      adminbtn.innerText = "admin";
+      adminbtn.name = member.id;
+      adminbtn.classList = "make-group-admin";
+      div.appendChild(adminbtn);
+    }
+    div.appendChild(removebtn);
+    groupmembershtml.appendChild(div);
+    adminbtn.addEventListener("click", makeUserAdmin);
+    // <div class="group-member">
+    //   <h3>username</h3>
+    //   <button>admin</button>
+    //   <button>remove</button>
+    // </div>;
+  });
+}
+
+async function makeUserAdmin(e) {
+  const groupId = document.getElementsByClassName("profile-username")[0].id;
+  // console.log("lets make him admin");
+  // console.log(groupId);
+  const userId = e.target.name;
+  const response = await axios.post(
+    `http://localhost:3000/group-chat/make-user-admin/${groupId}`,
+    {
+      userId: userId,
+    },
+    {
+      headers: { Authorization: token },
+    }
+  );
+  console.log(response);
+  const msg = response.data.msg;
+  alert(msg);
 }
 
 function addmemberjs(e) {
@@ -245,8 +322,7 @@ function addmemberjs(e) {
       const searchUser = document.getElementsByClassName("searched-user")[0];
       searchUser.classList.add("active");
       searchUser.innerHTML = "";
-      searchUser.innerHTML = `<h4>${user.id}</h4><button name=${userId} class="find-user">Add</button> `;
-      searchUser.children[1].value = groupId;
+      searchUser.innerHTML = `<h4>${user.id}</h4><button name=${userId} class="find-user">Add</button>`;
       searchUser.children[1].addEventListener("click", NewGroupMember);
     }
   });
@@ -265,7 +341,7 @@ async function NewGroupMember(e) {
       headers: { Authorization: token },
     }
   );
-  console.log(response);
+  // console.log(response);
   const msg = response.data.msg;
   alert(msg);
 }
@@ -309,7 +385,6 @@ async function specificUser(e) {
   ) {
     document.getElementsByClassName("add-user")[0].classList.remove("active");
   }
-
   // }, 1000);
 }
 

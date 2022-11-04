@@ -5,6 +5,44 @@ const Message = require("../model/Messages");
 
 const { Op } = require("sequelize");
 
+exports.makeUserAdmin = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const userId = req.body.userId;
+    const adm = await UserGroup.update(
+      { admin: true },
+      {
+        where: {
+          [Op.or]: [{ userId: userId }, { groupId: groupId }],
+        },
+      }
+    );
+    res.json({ success: true, msg: "added new admin", adm });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ success: false, msg: "smtg went wrong" });
+  }
+};
+
+exports.getAllMembers = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    var attr = ["id", "username"];
+    let group = await Group.findAll({
+      where: {
+        id: groupId,
+      },
+      include: [{ model: User, attributes: attr }],
+    });
+    group = group[0];
+    const allmembers = group.users;
+    res.status(200).json({ allmembers, success: true, msg: "got all members" });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ success: false, msg: "smtg went wrong" });
+  }
+};
+
 exports.newGroupMember = async (req, res) => {
   try {
     const loggedUserId = req.user.id;
