@@ -168,6 +168,7 @@ body {
 }
 .container-right-header {
   display: flex;
+  justify-content: flex-start;
 }
 .container-right-header p {
   display: flex;
@@ -265,4 +266,77 @@ body {
   margin: 0 3px;
   border: none;
   border-radius: 3px;
+}
+
+.add-user {
+  display: none;
+}
+
+.add-user.active {
+  display: flex;
+  position: fixed;
+  right: 2%;
+  top: 1%;
+  background-color: var(--luffy);
+  border-radius: 50%;
+}
+.add-user i {
+  padding: 10px;
+  color: var(--lblack);
+}
+.add-user:hover {
+  cursor: pointer;
+}
+.add-user-form {
+  display: none;
+}
+.add-user-form.active {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--luffy);
+  position: fixed;
+  top: 0%;
+  right: 0%;
+  min-height: 100vh;
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+.add-user-form input {
+  background-color: var(--luffy);
+  color: white;
+  margin: 3px;
+  padding: 3px;
+  border-radius: 10px;
+}
+.add-user-form span {
+  position: fixed;
+  right: 1%;
+  top: 2%;
+  color: var(--lblack);
+  font-weight: 800;
+}
+.add-user-form span:hover {
+  cursor: pointer;
+}
+.searched-user {
+  display: none;
+}
+.searched-user.active {
+  display: flex;
+  margin: 10px 0;
+  color: white;
+}
+.searched-user button {
+  background-color: white;
+  border: 1px solid;
+  color: var(--luffy);
+  margin: 0 5px;
+  padding: 5px;
+  font-size: 0.6rem;
+  border-radius: 10px;
+}
+.searched-user button:hover {
+  cursor: pointer;
 }

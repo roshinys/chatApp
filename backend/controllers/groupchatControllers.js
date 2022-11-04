@@ -5,6 +5,38 @@ const Message = require("../model/Messages");
 
 const { Op } = require("sequelize");
 
+exports.newGroupMember = async (req, res) => {
+  try {
+    const loggedUserId = req.user.id;
+    const groupId = req.body.groupId;
+    const newUserId = req.body.userId;
+    let superUser = await UserGroup.findAll({
+      Where: {
+        [Op.and]: [{ userId: loggedUserId }, { groupId: groupId }],
+      },
+    });
+    superUser = superUser[0];
+    if (!superUser.admin) {
+      res.json({ success: false, msg: "your not admin user" });
+      return;
+    }
+    let alreadyIn = await UserGroup.findAll({ where: { userId: newUserId } });
+    alreadyIn = alreadyIn[0];
+    if (alreadyIn) {
+      res.json({ success: false, msg: "user already exists" });
+      return;
+    }
+    const newguser = await UserGroup.create({
+      userId: newUserId,
+      groupId: groupId,
+    });
+    res.json({ success: true, msg: "succesfully added user", newguser });
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ success: false, msg: "smtg went wrong" });
+  }
+};
+
 exports.newChat = async (req, res) => {
   const groupId = req.body.id;
   const content = req.body.content;
@@ -54,12 +86,15 @@ exports.newGroup = async (req, res) => {
     const user = req.user;
     const newGroup = await Group.create({
       name: groupName,
+      admin: true,
     });
-    const group = await user.addGroup(newGroup);
+    const group = await user.addGroup(newGroup, {
+      through: { superadmin: true, admin: true },
+    });
     const groupId = newGroup.id;
     res
       .status(201)
-      .json({ success: true, msg: "created group", groupName, groupId });
+      .json({ success: true, msg: "created group", group, groupName, groupId });
   } catch (err) {
     res.status(404).json({ success: false, msg: "smtg went wrong" });
   }

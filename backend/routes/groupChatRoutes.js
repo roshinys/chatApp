@@ -24,4 +24,10 @@ router.get(
   groupchatController.getGroup
 );
 
+router.post(
+  "/add-user/",
+  middleware.authenticate,
+  groupchatController.newGroupMember
+);
+
 module.exports = router;
