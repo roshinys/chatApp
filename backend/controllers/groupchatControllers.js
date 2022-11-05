@@ -90,7 +90,11 @@ exports.newGroupMember = async (req, res) => {
       res.json({ success: false, msg: "your not admin user" });
       return;
     }
-    let alreadyIn = await UserGroup.findAll({ where: { userId: newUserId } });
+    let alreadyIn = await UserGroup.findAll({
+      where: {
+        [Op.and]: [{ userId: newUserId }, { groupId: groupId }],
+      },
+    });
     alreadyIn = alreadyIn[0];
     if (alreadyIn) {
       res.json({ success: false, msg: "user already exists" });
@@ -111,9 +115,11 @@ exports.newChat = async (req, res) => {
   const groupId = req.body.id;
   const content = req.body.content;
   const user = req.user;
+  const fileUrl = String(req.body.fileurl);
   const result = await user.createMessage({
     content: content,
     groupId: groupId,
+    fileUrl: fileUrl,
   });
   res.json({ success: true, msg: "message sent", result });
 };

@@ -2,6 +2,7 @@ const token = localStorage.getItem("token");
 const sendMessage = document.getElementById("sendMessage");
 const contactHtml = document.querySelectorAll(".contact");
 const addnewgroup = document.getElementById("addnewgroup");
+const newfile = document.getElementById("newfile");
 var myInterval;
 var newInterval;
 var oldmsgs;
@@ -12,10 +13,19 @@ window.addEventListener("DOMContentLoaded", () => {
     window.location.href =
       "C:Users\roshiDesktop\backendSharpenerchatApp\frontendhtmllogin.html";
   }
-
   getAllChats();
   getAllGroups();
-
+  newfile.addEventListener("click", () => {
+    const addFileForm = document.getElementsByClassName("add-file-form")[0];
+    if (!addFileForm.classList.contains("active")) {
+      addFileForm.classList.add("active");
+      document
+        .getElementById("uploadfile")
+        .addEventListener("submit", uploadImage);
+    } else {
+      addFileForm.classList.remove("active");
+    }
+  });
   sendMessage.addEventListener("click", sendNewText);
   addnewgroup.addEventListener("click", () => {
     const groupformhtml = document.getElementsByClassName("addGroupForm")[0];
@@ -27,6 +37,25 @@ window.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("newgroup").addEventListener("click", AddNewGroup);
 });
+
+async function uploadImage(e) {
+  e.preventDefault();
+  const form = document.getElementById("uploadfile");
+  const formData = new FormData(form);
+  const response = await axios.post(
+    `http://localhost:3000/image/new-image`,
+    formData,
+    {
+      headers: { Authorization: token },
+    }
+  );
+  console.log(response);
+  if (!response.data.success) {
+    alert(response.data.msg);
+  }
+  const fileUrl = response.data.fileUrl;
+  sendNewText(fileUrl);
+}
 
 async function getAllGroups() {
   const response = await axios.get(
@@ -77,7 +106,8 @@ async function AddNewGroup(e) {
   contactListNew(chat, true);
 }
 
-async function sendNewText() {
+async function sendNewText(fileUrl) {
+  const fileurl = fileUrl || undefined;
   const newText = document.getElementById("newtext").value;
   document.getElementById("newtext").value = "";
   const profileUsername =
@@ -94,24 +124,29 @@ async function sendNewText() {
     obj = {
       id: groudId,
       content: newText,
+      fileurl: fileurl,
     };
-    console.log("am i here");
   } else {
     const OtherUserId = profileUsername.id;
     apiCall = "http://localhost:3000/chat/new-chat";
     obj = {
       id: OtherUserId,
       content: newText,
+      fileurl: fileurl,
     };
   }
   const response = await axios.post(`${apiCall}`, obj, {
     headers: { Authorization: token },
   });
   console.log(response);
-  addToChatList(response.data.result.content || newText, true);
+  if (response.data.result.content.length > 0) {
+    addToChatList(response.data.result.content || newText, true, "You", false);
+  } else {
+    addToChatList(response.data.result.fileUrl, true, "You", true);
+  }
 }
 
-function addToChatList(newText, isSent, username) {
+function addToChatList(newText, isSent, username, isFile) {
   if (!username) {
     var username = "";
   }
@@ -123,7 +158,12 @@ function addToChatList(newText, isSent, username) {
     text.className = "text sent";
     username = "You";
   }
-  text.innerHTML = `<p><span class="text-username">${username}  </span>${newText}</p>`;
+  if (!isFile) {
+    text.innerHTML = `<p class="chat-p"><span class="text-username">${username}  </span>${newText}</p>`;
+  } else {
+    text.innerHTML = `<span class="text-username">${username}  </span><img class="chat-image" src="${newText}" alt="${newText}">`;
+  }
+
   texts.appendChild(text);
 }
 
@@ -208,9 +248,15 @@ async function specificGroup(e) {
       if (message.userId != loggedUserId) {
         isSent = false;
       }
-      const content = message.content;
-      newmsg.push([content, isSent, message.user.username]);
-      addToChatList(content, isSent, message.user.username);
+      let content = message.content;
+      if (content.length > 0) {
+        newmsg.push([content, isSent, message.user.username, false]);
+        addToChatList(content, isSent, message.user.username, false);
+      } else {
+        content = message.fileUrl;
+        newmsg.push([content, isSent, message.user.username, true]);
+        addToChatList(content, isSent, message.user.username, true);
+      }
     });
     if (!oldGrpMsgs) {
       oldGrpMsgs = [...newmsg];
@@ -415,7 +461,7 @@ function addOldMsgs(messages, isGroup) {
   texts.innerHTML = "";
   messages.forEach((message) => {
     const content = message[0];
-    addToChatList(content, message[1], message[2]);
+    addToChatList(content, message[1], message[2], message[3]);
   });
 }
 
@@ -428,9 +474,18 @@ function display(messages, userId, rid) {
     if (message.userId != userId) {
       isSent = false;
     }
-    const content = message.content;
-    newmsg.push([message.content, isSent]);
-    addToChatList(content, isSent);
+    // const content = message.content;
+    let content = message.content;
+    if (content.length > 0) {
+      newmsg.push([content, isSent, message.user.username, false]);
+      addToChatList(content, isSent, message.user.username, false);
+    } else {
+      content = message.fileUrl;
+      newmsg.push([content, isSent, message.user.username, true]);
+      addToChatList(content, isSent, message.user.username, true);
+    }
+    // newmsg.push([message.content, isSent]);
+    // addToChatList(content, isSent);
   });
   // // console.log(newmsg);
   // newmsg.forEach((msgs) => {

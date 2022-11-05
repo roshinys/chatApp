@@ -13,7 +13,9 @@ const Message = sequelize.define("message", {
   },
   content: {
     type: Sequelize.STRING,
-    allowNull: false,
+  },
+  fileUrl: {
+    type: Sequelize.STRING,
   },
 });
 

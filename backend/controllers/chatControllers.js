@@ -6,12 +6,14 @@ exports.newChat = async (req, res) => {
   try {
     const id = parseInt(req.body.id);
     const content = req.body.content;
+    const fileUrl = String(req.body.fileurl);
     const user = req.user;
     const otherUser = await User.findByPk(id);
     const result = await req.user.createMessage({
       senderId: user.id,
       receiverId: id,
       content: content,
+      fileUrl: fileUrl,
     });
     // console.log("result ==>", result);
     res.status(200).json({ result, success: true, msg: "message sent" });

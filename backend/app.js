@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ const sequelize = require("./util/database");
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const groupchatRoutes = require("./routes/groupChatRoutes");
+const imageRoutes = require("./routes/imageRoutes");
 
 //model
 const User = require("./model/User");
@@ -38,6 +40,7 @@ Group.belongsToMany(User, { through: UserGroup });
 app.use("/user", authRoutes);
 app.use("/chat", chatRoutes);
 app.use("/group-chat", groupchatRoutes);
+app.use("/image", imageRoutes);
 
 sequelize
   .sync()
